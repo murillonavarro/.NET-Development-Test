@@ -4,10 +4,7 @@ namespace Development_Test.Models
 {
     public sealed class Logger
     {
-        // Inicialização Lazy para garantir o Singleton thread-safe
         private static readonly Lazy<Logger> lazyInstance = new Lazy<Logger>(() => new Logger());
-
-        // Objeto de bloqueio para garantir thread safety ao escrever no arquivo
         private static readonly object lockObject = new object();
 
         private Logger() { }
@@ -17,14 +14,24 @@ namespace Development_Test.Models
         public async Task LogAsync(LogLevel level, string message)
         {
             string logEntry = $"[{DateTime.Now}] [{level}] {message}{Environment.NewLine}";
+            string logDirectory = "logs";
 
             try
             {
+                // Verifica se a pasta 'logs' existe e cria-a se não existir
+                if (!Directory.Exists(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
                 await Task.Run(() =>
                 {
                     lock (lockObject)
                     {
-                        using (StreamWriter writer = File.AppendText("log.txt"))
+                        // Cria o caminho completo para o arquivo de log dentro da pasta 'logs'
+                        string logFilePath = Path.Combine(logDirectory, "log.txt");
+
+                        using (StreamWriter writer = File.AppendText(logFilePath))
                         {
                             writer.Write(logEntry);
                         }
@@ -38,4 +45,5 @@ namespace Development_Test.Models
             }
         }
     }
+
 }
