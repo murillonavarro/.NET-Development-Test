@@ -1,4 +1,6 @@
-﻿namespace Development_Test.Models
+﻿using Development_Test.Enums;
+
+namespace Development_Test.Models
 {
     public sealed class Logger
     {
